@@ -23,7 +23,7 @@ func NewJoineerClient(key, secret string) (*JoineerClient, error) {
 		ApiSecret: secret,
 	}
 	c := resty.New()
-	c.SetBaseURL("http://localhost:5678/v1/api")
+	c.SetBaseURL("http://120.24.169.86:5678/v1/api")
 	c.SetHeader("secret", secret)
 	c.SetHeader("key", key)
 	c.SetHeader("from", "sdk")
