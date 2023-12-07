@@ -14,6 +14,7 @@ type JoineerConfig struct {
 	ApiSecret string
 
 	httpClient *resty.Client
+	userId     string
 }
 
 func NewJoineerClient(key, secret string) (*JoineerClient, error) {
@@ -22,7 +23,7 @@ func NewJoineerClient(key, secret string) (*JoineerClient, error) {
 		ApiSecret: secret,
 	}
 	c := resty.New()
-	c.SetBaseURL("http://120.24.169.86:5173/v1/api")
+	c.SetBaseURL("http://localhost:5678/v1/api")
 	c.SetHeader("secret", secret)
 	c.SetHeader("key", key)
 	c.SetHeader("from", "sdk")
@@ -31,7 +32,9 @@ func NewJoineerClient(key, secret string) (*JoineerClient, error) {
 		return nil, err
 	}
 	c.SetHeader("user_id", userId)
+	cfg.userId = userId
 	cfg.httpClient = c
+	client.cfg = cfg
 	return client, nil
 }
 
