@@ -1,4 +1,4 @@
-module joineer-sms-go-sdk
+module github.com/lijinggen/joineer-sms-go-sdk
 
 go 1.19
 

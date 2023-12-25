@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (j *JoineerClient) BulKSend(phone []string, content string) error {
+func (j *JoineerClient) BulKSend(phone []string, content string, senderId string) error {
 	mobileListId, err := j.batchAddMobile(phone)
 	if err != nil {
 		return err
@@ -16,6 +16,7 @@ func (j *JoineerClient) BulKSend(phone []string, content string) error {
 		"mobile_list_id": mobileListId,
 		"content":        content,
 		"user_id":        j.cfg.userId,
+		"sender_id":      senderId,
 	}
 	resp := &JoineerError{}
 	rawResp, err := j.cfg.httpClient.R().
@@ -69,11 +70,12 @@ func (j *JoineerClient) batchAddMobile(phone []string) (string, error) {
 	return payload["mobile_list_id"].(string), nil
 }
 
-func (j *JoineerClient) Send(phone string, content string) error {
+func (j *JoineerClient) Send(phone string, content string, senderId string) error {
 	payload := map[string]interface{}{
-		"phone":   phone,
-		"content": content,
-		"user_id": j.cfg.userId,
+		"phone":     phone,
+		"content":   content,
+		"user_id":   j.cfg.userId,
+		"sender_id": senderId,
 	}
 	resp := &JoineerError{}
 	rawResp, err := j.cfg.httpClient.R().
