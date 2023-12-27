@@ -6,10 +6,10 @@ import (
 	"net/http"
 )
 
-func (j *JoineerClient) BulKSend(phone []string, content string, senderId string) error {
+func (j *JoineerClient) BulKSend(phone []string, content string, senderId string) (string, error) {
 	mobileListId, err := j.batchAddMobile(phone)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	payload := map[string]interface{}{
@@ -18,21 +18,25 @@ func (j *JoineerClient) BulKSend(phone []string, content string, senderId string
 		"user_id":        j.cfg.userId,
 		"sender_id":      senderId,
 	}
-	resp := &JoineerError{}
+	type SendResp struct {
+		JoineerError
+		TaskId string `json:"task_id"`
+	}
+	resp := &SendResp{}
 	rawResp, err := j.cfg.httpClient.R().
 		SetBody(payload).
 		SetResult(resp).
 		Post("/bulk_send")
 	if err != nil {
-		return err
+		return "", err
 	}
 	if rawResp.StatusCode() != http.StatusOK {
-		return errors.New(rawResp.Status())
+		return "", errors.New(rawResp.Status())
 	}
 	if resp.ErrorCode != 0 {
-		return errors.New(resp.ErrorMsg)
+		return "", errors.New(resp.ErrorMsg)
 	}
-	return nil
+	return resp.TaskId, nil
 }
 
 func (j *JoineerClient) batchAddMobile(phone []string) (string, error) {
@@ -70,26 +74,30 @@ func (j *JoineerClient) batchAddMobile(phone []string) (string, error) {
 	return payload["mobile_list_id"].(string), nil
 }
 
-func (j *JoineerClient) Send(phone string, content string, senderId string) error {
+func (j *JoineerClient) Send(phone string, content string, senderId string) (string, error) {
 	payload := map[string]interface{}{
 		"phone":     phone,
 		"content":   content,
 		"user_id":   j.cfg.userId,
 		"sender_id": senderId,
 	}
-	resp := &JoineerError{}
+	type SendResp struct {
+		JoineerError
+		TaskId string `json:"task_id"`
+	}
+	resp := &SendResp{}
 	rawResp, err := j.cfg.httpClient.R().
 		SetBody(payload).
 		SetResult(resp).
 		Post("/send")
 	if err != nil {
-		return err
+		return "", err
 	}
 	if rawResp.StatusCode() != http.StatusOK {
-		return errors.New(rawResp.Status())
+		return "", errors.New(rawResp.Status())
 	}
 	if resp.ErrorCode != 0 {
-		return errors.New(resp.ErrorMsg)
+		return "", errors.New(resp.ErrorMsg)
 	}
-	return nil
+	return resp.TaskId, nil
 }
